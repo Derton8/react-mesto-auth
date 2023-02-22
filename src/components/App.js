@@ -12,6 +12,7 @@ import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import { Route, Routes} from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.js';
 import Register from './Register.js';
+import Login from './Login.js';
 
 export default function App() {
 
@@ -127,7 +128,7 @@ export default function App() {
       <Header />
       <Routes>
         <Route path="/sign-up" element={<Register />} />
-        <Route path="/sign-in" />
+        <Route path="/sign-in" element={<Login />}/>
         <Route path="/" element={
           <ProtectedRoute element={Main}
             onEditProfile={handleEditProfileClick}
