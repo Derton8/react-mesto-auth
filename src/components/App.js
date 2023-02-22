@@ -9,6 +9,9 @@ import ImagePopup from './ImagePopup.js';
 import AddPlacePopup from './AddPlacePopup.js';
 import { api } from '../utils/api.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
+import { Route, Routes} from 'react-router-dom';
+import ProtectedRoute from './ProtectedRoute.js';
+import Register from './Register.js';
 
 export default function App() {
 
@@ -20,6 +23,8 @@ export default function App() {
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
+
+  const [loggedIn, setLogedIn] = useState(false);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getCardsList()])
@@ -120,9 +125,23 @@ export default function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <Header />
-      <Main onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={handleCardClick} 
-      onCardLike={handleCardLike} onCardDelete={handleCardDelete} cards={cards} />
-      <Footer />
+      <Routes>
+        <Route path="/sign-up" element={<Register />} />
+        <Route path="/sign-in" />
+        <Route path="/" element={
+          <ProtectedRoute element={Main}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            cards={cards}
+            loggedIn={loggedIn}
+          />}
+        />
+      </Routes>
+      {loggedIn && <Footer />}
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
       <EditAvatarPopup isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} onUpdateAvatar={handleUpdateAvatar} />
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlace} />
