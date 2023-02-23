@@ -8,7 +8,7 @@ export default function ImagePopup(props) {
         <button className="popup__close-btn popup__close-btn_img" type="button" onClick={onClose}></button>
         <img className="popup__img" alt={card.name} src={card.link}/>
         <figcaption className="popup__caption">
-          <p className="popup__title">{card.name}</p>
+          <p className="popup__caption">{card.name}</p>
         </figcaption>  
       </figure>
     </section>

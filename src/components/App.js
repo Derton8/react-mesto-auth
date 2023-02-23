@@ -13,6 +13,7 @@ import { Route, Routes} from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.js';
 import Register from './Register.js';
 import Login from './Login.js';
+import InfoTooltip from './InfoTooltip.js';
 
 export default function App() {
 
@@ -20,12 +21,13 @@ export default function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState({});
 
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
 
-  const [loggedIn, setLogedIn] = useState(false);
+  const [loggedIn, setLogedIn] = useState(true);
 
   useEffect(() => {
     Promise.all([api.getUserInfo(), api.getCardsList()])
@@ -87,6 +89,7 @@ export default function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditProfilePopupOpen(false);
     setIsImagePopupOpen(false);
+    setIsInfoTooltipOpen(false);
     setSelectedCard({});
   }
 
@@ -123,14 +126,19 @@ export default function App() {
       })
   }
 
+  function handleRegister() {
+    setIsInfoTooltipOpen(true);
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <Header />
       <Routes>
-        <Route path="/sign-up" element={<Register />} />
+        <Route path="/sign-up" element={<Register onSubmit={handleRegister} />} />
         <Route path="/sign-in" element={<Login />}/>
         <Route path="/" element={
-          <ProtectedRoute element={Main}
+          <ProtectedRoute 
+            element={Main}
             onEditProfile={handleEditProfileClick}
             onAddPlace={handleAddPlaceClick}
             onEditAvatar={handleEditAvatarClick}
@@ -139,8 +147,8 @@ export default function App() {
             onCardDelete={handleCardDelete}
             cards={cards}
             loggedIn={loggedIn}
-          />}
-        />
+          />
+        }/>
       </Routes>
       {loggedIn && <Footer />}
       <EditProfilePopup isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} onUpdateUser={handleUpdateUser} />
@@ -148,6 +156,7 @@ export default function App() {
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlace} />
       <PopupWithForm title="Вы уверены?" name="confirm" submitButton="Да" />
       <ImagePopup card={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
+      <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} loggedIn={loggedIn} />
     </CurrentUserContext.Provider>
   );
 }
