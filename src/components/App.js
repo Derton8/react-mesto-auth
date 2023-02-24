@@ -170,6 +170,8 @@ export default function App() {
         localStorage.setItem('jwt', res.token);
       })
       .catch((err) => {
+        setInfoTooltipStatus('error');
+        setIsInfoTooltipOpen(true);
         console.log(err);
       })
   }
