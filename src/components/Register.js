@@ -10,8 +10,7 @@ export default function Register(props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log('Зареган!');
-    onSubmit();
+    onSubmit({email, password});
   }
 
   return (

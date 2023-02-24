@@ -9,11 +9,12 @@ import ImagePopup from './ImagePopup.js';
 import AddPlacePopup from './AddPlacePopup.js';
 import { api } from '../utils/api.js';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
-import { Route, Routes} from 'react-router-dom';
+import { Route, Routes, useNavigate} from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute.js';
 import Register from './Register.js';
 import Login from './Login.js';
 import InfoTooltip from './InfoTooltip.js';
+import * as auth from '../utils/auth.js';
 
 export default function App() {
 
@@ -22,15 +23,34 @@ export default function App() {
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState({});
+  const [loggedIn, setLogedIn] = useState(false);
 
+  const [selectedCard, setSelectedCard] = useState({});
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
-
-  const [loggedIn, setLogedIn] = useState(true);
+  const [infoTooltipStatus, setInfoTooltipStatus] = useState('');
+  const [email, setEmail] = useState('');
+  
+  const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([api.getUserInfo(), api.getCardsList()])
+    const jwt = localStorage.getItem('jwt');
+    if(jwt) {
+      auth.checkAuth(jwt)
+      .then((res) => {
+        setEmail(res.data.email);
+        setLogedIn(true);
+        navigate('/', {replace: true});
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+    }
+  }, []);
+
+  useEffect(() => {
+    if(loggedIn) {
+      Promise.all([api.getUserInfo(), api.getCardsList()])
       .then(([data, cards]) => {
         setCurrentUser(data);
         setCards(cards);
@@ -38,7 +58,8 @@ export default function App() {
       .catch((err) => {
         console.log(err);
       })
-  }, []);
+    }
+  }, [loggedIn]);
 
   function handleCardClick(card) {
     setSelectedCard(card);
@@ -126,16 +147,44 @@ export default function App() {
       })
   }
 
-  function handleRegister() {
-    setIsInfoTooltipOpen(true);
+  function handleRegister(data) {
+    auth.signup(data)
+      .then(() => {
+        setInfoTooltipStatus('success');
+        setIsInfoTooltipOpen(true);
+        navigate('/sign-in' , {replace: true});
+      })
+      .catch((err) => {
+        setInfoTooltipStatus('error');
+        setIsInfoTooltipOpen(true);
+        console.log(err);
+      })
+  }
+
+  function handleLogin(data) {
+    auth.signin(data)
+      .then((res) => {
+        setEmail(data.email);
+        setLogedIn(true);
+        navigate('/' , {replace: true})
+        localStorage.setItem('jwt', res.token);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
+
+  function handleSignOut() {
+    localStorage.removeItem('jwt');
+    setLogedIn(false);
   }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
-      <Header />
+      <Header email={email} onSignOut={handleSignOut}/>
       <Routes>
         <Route path="/sign-up" element={<Register onSubmit={handleRegister} />} />
-        <Route path="/sign-in" element={<Login />}/>
+        <Route path="/sign-in" element={<Login onSubmit={handleLogin} />} />
         <Route path="/" element={
           <ProtectedRoute 
             element={Main}
@@ -156,7 +205,7 @@ export default function App() {
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlace={handleAddPlace} />
       <PopupWithForm title="Вы уверены?" name="confirm" submitButton="Да" />
       <ImagePopup card={selectedCard} isOpen={isImagePopupOpen} onClose={closeAllPopups} />
-      <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} loggedIn={loggedIn} />
+      <InfoTooltip isOpen={isInfoTooltipOpen} onClose={closeAllPopups} tooltipStatus={infoTooltipStatus} />
     </CurrentUserContext.Provider>
   );
 }
