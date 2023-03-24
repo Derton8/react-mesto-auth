@@ -1,8 +1,8 @@
 <h1 align="center">Проект: Mesto React with Auth</h1>
 
 <div align="center">
-  <img width="500" height="344" src="https://user-images.githubusercontent.com/108746040/227481773-08fc4b74-6ce7-49c7-a55e-2db1180cde19.png" />
-  <img width="500" src="https://user-images.githubusercontent.com/108746040/227482066-6e9f6f10-16ac-4eee-9378-0937bcfdfe36.png" />
+  <img width="400" height="274" src="https://user-images.githubusercontent.com/108746040/227481773-08fc4b74-6ce7-49c7-a55e-2db1180cde19.png" />
+  <img width="400" src="https://user-images.githubusercontent.com/108746040/227482066-6e9f6f10-16ac-4eee-9378-0937bcfdfe36.png" />
 
 </div>
 
